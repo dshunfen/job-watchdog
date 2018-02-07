@@ -1,3 +1,9 @@
+# Eclipse
+.classpath
+.factorypath
+.settings
+.project
+
 target/
 *iml
 .idea
