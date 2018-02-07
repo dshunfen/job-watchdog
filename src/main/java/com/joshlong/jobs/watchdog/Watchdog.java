@@ -56,7 +56,7 @@ public class Watchdog implements InitializingBean {
 					.of(new SimpleEntry<>("free memory", Runtime.getRuntime().freeMemory()),
 							new SimpleEntry<>("max memory", Runtime.getRuntime().maxMemory()),
 							new SimpleEntry<>("total memory", Runtime.getRuntime().totalMemory()))
-					.collect(Collectors.toMap(key -> String.format("%20s", key), value -> String.format("%,d", value)));
+					.collect(Collectors.toMap(key -> key.toString(), value -> value.toString()));
 			this.log.debug(myMap);
 		}
 	}
