@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.GenericApplicationContext;
@@ -33,7 +33,7 @@ public class Watchdog implements InitializingBean {
 	private AtomicLong lastTick;
 	private long window;
 
-	private final Log log = LogFactory.getLog(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public Watchdog(WatchdogProperties watchdogProperties, Executor executor,
 			GenericApplicationContext applicationContext) {
@@ -57,13 +57,14 @@ public class Watchdog implements InitializingBean {
 							new SimpleEntry<>("max memory", Runtime.getRuntime().maxMemory()),
 							new SimpleEntry<>("total memory", Runtime.getRuntime().totalMemory()))
 					.collect(Collectors.toMap(key -> key.toString(), value -> value.toString()));
-			this.log.debug(myMap);
+			this.log.debug(myMap.toString());
 		}
 	}
 
 	public void stop() {
 		this.log.debug(
-				"There have been ${window}s of inactivity. " + "Calling ${applicationContext.javaClass.name}#close()");
+				"There have been {}s of inactivity. " 
+				+ "Calling {}#close()", window, applicationContext.getClass().getName());
 		this.logMemory();
 		this.applicationContext.close();
 	}
@@ -78,7 +79,7 @@ public class Watchdog implements InitializingBean {
 
 		this.executor.execute(() -> {
 			this.logMemory();
-			this.log.debug("Starting ${javaClass.name} thread.");
+			this.log.debug("Starting {} thread.", getClass());
 			while (true) {
 				// sleep a number of seconds
 				// TODO - Figure out how Kotlin handles exceptions
@@ -97,7 +98,7 @@ public class Watchdog implements InitializingBean {
 					break;
 				}
 			}
-			this.log.debug("Finishing ${javaClass.name} thread.");
+			this.log.debug("Finishing {} thread.", getClass());
 		});
 	}
 }
